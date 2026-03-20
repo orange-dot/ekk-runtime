@@ -1,0 +1,22 @@
+(*
+ * EkkVerification — AutoCorres session for ekk-runtime
+ *
+ * Copyright (c) 2026 Elektrokombinacija
+ * SPDX-License-Identifier: MIT
+ *
+ * Build command (adjust paths to your local l4v and Isabelle installations):
+ *
+ *   <isabelle>/bin/isabelle build \
+ *     -d <l4v> \
+ *     -d docs/isabelle \
+ *     EkkVerification
+ *)
+
+chapter EkkVerification
+
+session EkkVerification = AutoCorres +
+  options [quick_and_dirty]
+  theories
+    EkkTypes
+    EkkHeartbeat
+    EkkConsensus
