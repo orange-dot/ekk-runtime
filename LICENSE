@@ -1,0 +1,9 @@
+ekk-runtime uses split licensing:
+
+- Code (`.c`, `.h`, `.thy`, `ROOT`, build scripts): MIT
+- Documentation (`.md`): CC-BY-SA-4.0
+
+See:
+
+- `LICENSE-MIT`
+- `LICENSE-CC-BY-SA-4.0`
