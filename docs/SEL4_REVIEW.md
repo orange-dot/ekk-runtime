@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-<!-- Copyright (c) 2026 Elektrokombinacija -->
+<!-- Copyright (c) 2026 mamut-studio.com -->
 # EK-KOR v2 — seL4 Systems Review
 
 **Reviewer:** sel4-systems-reviewer agent

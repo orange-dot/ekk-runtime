@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  */
 

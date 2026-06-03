@@ -2,7 +2,7 @@
  * @file ekk_heartbeat.h
  * @brief EK-KOR v2 - Heartbeat and Liveness Detection
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *

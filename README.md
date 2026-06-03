@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-<!-- Copyright (c) 2026 Elektrokombinacija -->
+<!-- Copyright (c) 2026 mamut-studio.com -->
 
 # ekk -- Coordination Runtime
 
@@ -76,4 +76,4 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for the canonical smoke path and review pos
 - Code (`.c`, `.h`, `.thy`, `ROOT`, build scripts): MIT
 - Documentation (`.md`): CC-BY-SA-4.0
 
-Copyright (c) 2026 Elektrokombinacija
+Copyright (c) 2026 mamut-studio.com

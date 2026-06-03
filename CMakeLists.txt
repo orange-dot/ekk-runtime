@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 Elektrokombinacija
+# Copyright (c) 2026 mamut-studio.com
 
 project(
     ekk_runtime

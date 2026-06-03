@@ -2,7 +2,7 @@
  * @file ekk_types.c
  * @brief EK-KOR v2 - Type utilities and fixed-point math
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  */
 

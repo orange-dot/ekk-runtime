@@ -11,7 +11,7 @@
  *
  * Run with: ./example_multi_module
  *
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  */
 
@@ -181,7 +181,7 @@ int main(void)
     printf("*********************************************\n");
     printf("*  EK-KOR v2: Multi-Module Example          *\n");
     printf("*  7 Modules Topology Simulation            *\n");
-    printf("*  Copyright (c) 2026 Elektrokombinacija    *\n");
+    printf("*  Copyright (c) 2026 mamut-studio.com    *\n");
     printf("*********************************************\n");
     printf("\n");
 

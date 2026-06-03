@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-<!-- Copyright (c) 2026 Elektrokombinacija -->
+<!-- Copyright (c) 2026 mamut-studio.com -->
 # EK-KOR Agentic Experiment - Runtime Hardening Milestone
 
 Date: 2026-03-18

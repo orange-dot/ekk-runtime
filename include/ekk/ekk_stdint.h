@@ -1,7 +1,7 @@
 /*
  * ekk_stdint.h -- minimal integer type definitions for l4v C parser.
  *
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * The system <stdint.h> may include GCC-specific extensions rejected by

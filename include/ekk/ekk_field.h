@@ -2,7 +2,7 @@
  * @file ekk_field.h
  * @brief EK-KOR v2 - Coordination Field Primitives
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *

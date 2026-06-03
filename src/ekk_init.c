@@ -2,7 +2,7 @@
  * @file ekk_init.c
  * @brief EK-KOR v2 - System Initialization
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * Initializes the EK-KOR v2 system:

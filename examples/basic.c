@@ -10,7 +10,7 @@
  *
  * Run with: ./example_basic
  *
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  */
 
@@ -79,7 +79,7 @@ int main(void)
     printf("*********************************************\n");
     printf("*  EK-KOR v2: Basic Example                 *\n");
     printf("*  Module Lifecycle Demo                    *\n");
-    printf("*  Copyright (c) 2026 Elektrokombinacija    *\n");
+    printf("*  Copyright (c) 2026 mamut-studio.com    *\n");
     printf("*********************************************\n");
     printf("\n");
 

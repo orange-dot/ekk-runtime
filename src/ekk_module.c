@@ -2,7 +2,7 @@
  * @file ekk_module.c
  * @brief EK-KOR v2 - Module as First-Class Citizen Implementation
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * NOVELTY: Module-Centric RTOS

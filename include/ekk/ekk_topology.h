@@ -2,7 +2,7 @@
  * @file ekk_topology.h
  * @brief EK-KOR v2 - Topological k-Neighbor Coordination
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *

@@ -1,7 +1,7 @@
 /*
  * ekk_heartbeat_verif.c -- verification-only C file for AutoCorres / l4v C parser.
  *
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * This file is NOT compiled as part of the normal build. It is processed

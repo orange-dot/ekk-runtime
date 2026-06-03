@@ -2,7 +2,7 @@
  * @file ekk_consensus.h
  * @brief EK-KOR v2 - Threshold-Based Distributed Consensus
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *

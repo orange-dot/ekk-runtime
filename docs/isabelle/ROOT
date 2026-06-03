@@ -1,7 +1,7 @@
 (*
  * EkkVerification — AutoCorres session for ekk-runtime
  *
- * Copyright (c) 2026 Elektrokombinacija
+ * Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * Build command (adjust paths to your local l4v and Isabelle installations):

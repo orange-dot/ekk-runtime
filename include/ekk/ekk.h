@@ -2,7 +2,7 @@
  * @file ekk.h
  * @brief EK-KOR v2 - Master Include File
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *
@@ -51,7 +51,7 @@
  * }
  * @endcode
  *
- * @author Elektrokombinacija
+ * @author mamut-studio.com
  * @date 2026
  */
 

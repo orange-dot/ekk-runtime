@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-<!-- Copyright (c) 2026 Elektrokombinacija -->
+<!-- Copyright (c) 2026 mamut-studio.com -->
 # l4v Parseability Plan for `ekkor-agentic-experiment`
 
 **Goal:** Make the core C code fully parseable and liftable by AutoCorres, on the

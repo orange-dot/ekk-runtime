@@ -2,7 +2,7 @@
  * @file ekk_hal.h
  * @brief EK-KOR v2 - Hardware Abstraction Layer
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * @license MIT
  * SPDX-License-Identifier: MIT
  *

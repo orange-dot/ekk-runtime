@@ -2,7 +2,7 @@
  * @file ekk_hal_posix.c
  * @brief EK-KOR v2 - POSIX/Windows HAL Implementation
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * Hardware abstraction layer for testing on desktop systems.

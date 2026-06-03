@@ -2,7 +2,7 @@
  * @file ekk_heartbeat.c
  * @brief EK-KOR v2 - Heartbeat and Liveness Detection Implementation
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * NOVELTY: Kernel-Integrated Failure Detection

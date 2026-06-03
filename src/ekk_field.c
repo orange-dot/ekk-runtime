@@ -2,7 +2,7 @@
  * @file ekk_field.c
  * @brief EK-KOR v2 - Coordination Field Implementation
  *
- * @copyright Copyright (c) 2026 Elektrokombinacija
+ * @copyright Copyright (c) 2026 mamut-studio.com
  * SPDX-License-Identifier: MIT
  *
  * NOVELTY: Potential Field Scheduling
