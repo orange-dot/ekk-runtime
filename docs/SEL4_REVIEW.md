@@ -127,20 +127,22 @@ The guard `if (x <= 0) return 0` correctly handles the x = 0 case, but the funct
 
 ## 3. Safety-Critical Design Weaknesses
 
-### 3.1 [CRITICAL] Byzantine evidence for `EKK_EVIDENCE_INVALID_MAC` accepted without proof
+### 3.1 [RESOLVED] `EKK_EVIDENCE_INVALID_MAC` rejected pending key infrastructure
 
-**File:** `src/ekk_consensus.c`, lines 821–826
+**File:** `src/ekk_consensus.c`, `ekk_consensus_verify_evidence`
 
 ```c
 case EKK_EVIDENCE_INVALID_MAC:
-    /* Evidence data should contain the invalid message + computed MAC */
-    /* We can't verify this without the shared key, so accept if structured */
-    break;
+    /* Cannot verify MAC evidence without shared key infrastructure.
+     * Reject until proper authentication is implemented. */
+    return EKK_FALSE;
 ```
 
-`ekk_consensus_verify_evidence` returns `EKK_TRUE` for `INVALID_MAC` evidence unconditionally (only structure is checked). Any module can therefore fabricate an `INVALID_MAC` claim, pass verification, and initiate a quarantine proposal (`EKK_THRESHOLD_SUPERMAJORITY`) against any target module it chooses. Because the quarantine requires only 2/3 vote — not cryptographic proof — a coalition of three cooperating faulty modules out of seven can quarantine any correct module without genuine evidence.
-
-For a safety-critical power-electronics cluster, quarantining a healthy charger module is a physical safety event (power delivery interrupted, possibly unsafe load distribution). This weakness must be addressed before deployment.
+`ekk_consensus_verify_evidence` now rejects `INVALID_MAC` evidence because this
+extract has no shared-key or MAC-verification infrastructure. This keeps
+quarantine proposals fail-closed until authenticated evidence can be verified.
+The broader quarantine path still depends on deployment authentication and
+application policy before it can be considered Byzantine-secure.
 
 ---
 
@@ -280,16 +282,15 @@ The following properties are explicitly confirmed and should be preserved:
 
 | # | Severity | File / Line | Action |
 |---|----------|-------------|--------|
-| 1 | CRITICAL | `ekk_consensus.c:822` | Replace unconditional accept of `INVALID_MAC` evidence with explicit rejection pending proper MAC verification infrastructure |
-| 2 | CRITICAL | `ekk_field.c:360–368` | Fix GC seqlock write: CAS on sequence before invalidation, abort if sequence changed since read |
-| 3 | HIGH | `ekk_types.c:47` | Add saturation to `ekk_fixed_div` (same pattern as `ekk_fixed_mul`) |
-| 4 | HIGH | `ekk_consensus.c:444` | Document (or enforce) that voter_id is caller-controlled and unauthenticated; update Byzantine claim in header comments accordingly |
-| 5 | HIGH | `ekk_field.c:98` | Fix `cf->field.sequence` write: copy the post-write even value, not the mid-write odd value |
-| 6 | MEDIUM | `ekk_module.c:~97` | Implement the `→ EKK_MODULE_REFORMING` transition trigger or remove the state from the enum |
-| 7 | MEDIUM | `ekk_field.c:218` | Wire `ekk_module_tick` through `ekk_field_sample_consistent` (with retry) rather than bare `ekk_field_sample` |
-| 8 | MEDIUM | `ekk_heartbeat.c:215` | Add `EKK_ASSERT(hb->config.period > 0)` and document as AutoCorres precondition |
-| 9 | LOW | `ekk_hal_posix.c` | Add per-module receive queues or dest_id filtering before multi-module POSIX tests |
-| 10 | LOW | `ekk_heartbeat.c:267` | Propagate actual module state into heartbeat message `.state` field |
+| 1 | CRITICAL | `ekk_field.c:360–368` | Fix GC seqlock write: CAS on sequence before invalidation, abort if sequence changed since read |
+| 2 | HIGH | `ekk_types.c:47` | Add saturation to `ekk_fixed_div` (same pattern as `ekk_fixed_mul`) |
+| 3 | HIGH | `ekk_consensus.c:444` | Document (or enforce) that voter_id is caller-controlled and unauthenticated; update Byzantine claim in header comments accordingly |
+| 4 | HIGH | `ekk_field.c:98` | Fix `cf->field.sequence` write: copy the post-write even value, not the mid-write odd value |
+| 5 | MEDIUM | `ekk_module.c:~97` | Implement the `→ EKK_MODULE_REFORMING` transition trigger or remove the state from the enum |
+| 6 | MEDIUM | `ekk_field.c:218` | Wire `ekk_module_tick` through `ekk_field_sample_consistent` (with retry) rather than bare `ekk_field_sample` |
+| 7 | MEDIUM | `ekk_heartbeat.c:215` | Add `EKK_ASSERT(hb->config.period > 0)` and document as AutoCorres precondition |
+| 8 | LOW | `ekk_hal_posix.c` | Add per-module receive queues or dest_id filtering before multi-module POSIX tests |
+| 9 | LOW | `ekk_heartbeat.c:267` | Propagate actual module state into heartbeat message `.state` field |
 
 ---
 

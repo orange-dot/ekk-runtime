@@ -65,6 +65,19 @@ static bool topology_has_neighbor_ids(const ekk_topology_t *topo,
            topo->neighbors[1].id == second;
 }
 
+static ekk_topology_config_t physical_topology_test_config(uint32_t k_neighbors)
+{
+    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
+
+    config.metric = EKK_DISTANCE_PHYSICAL;
+    config.k_neighbors = k_neighbors;
+    if (config.min_neighbors > k_neighbors) {
+        config.min_neighbors = k_neighbors;
+    }
+
+    return config;
+}
+
 static void topology_changed_a(ekk_topology_t *topo,
                                const ekk_neighbor_t *old_neighbors,
                                uint32_t old_count,
@@ -262,10 +275,7 @@ static bool test_topology_instances_are_isolated(void)
 {
     ekk_topology_t topo_a;
     ekk_topology_t topo_b;
-    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-
-    config.metric = EKK_DISTANCE_PHYSICAL;
-    config.k_neighbors = 2;
+    ekk_topology_config_t config = physical_topology_test_config(2);
 
     TEST_ASSERT(ekk_topology_init(&topo_a, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
     TEST_ASSERT(ekk_topology_init(&topo_b, 9, (ekk_position_t){1000, 0, 0}, &config) == EKK_OK);
@@ -309,10 +319,7 @@ static bool test_topology_instances_are_isolated(void)
 static bool test_topology_promotes_better_candidate_without_manual_reelect(void)
 {
     ekk_topology_t topo;
-    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-
-    config.metric = EKK_DISTANCE_PHYSICAL;
-    config.k_neighbors = 2;
+    ekk_topology_config_t config = physical_topology_test_config(2);
 
     TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
 
@@ -331,10 +338,7 @@ static bool test_topology_promotes_better_candidate_without_manual_reelect(void)
 static bool test_topology_ignores_worse_candidate_without_churn(void)
 {
     ekk_topology_t topo;
-    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-
-    config.metric = EKK_DISTANCE_PHYSICAL;
-    config.k_neighbors = 2;
+    ekk_topology_config_t config = physical_topology_test_config(2);
 
     TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
 
@@ -354,10 +358,7 @@ static bool test_topology_arrival_order_is_independent(void)
 {
     ekk_topology_t topo_a;
     ekk_topology_t topo_b;
-    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-
-    config.metric = EKK_DISTANCE_PHYSICAL;
-    config.k_neighbors = 2;
+    ekk_topology_config_t config = physical_topology_test_config(2);
 
     TEST_ASSERT(ekk_topology_init(&topo_a, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
     TEST_ASSERT(ekk_topology_init(&topo_b, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
@@ -381,10 +382,7 @@ static bool test_topology_arrival_order_is_independent(void)
 static bool test_topology_neighbor_position_update_can_trigger_replacement(void)
 {
     ekk_topology_t topo;
-    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-
-    config.metric = EKK_DISTANCE_PHYSICAL;
-    config.k_neighbors = 2;
+    ekk_topology_config_t config = physical_topology_test_config(2);
 
     TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
 
@@ -397,6 +395,62 @@ static bool test_topology_neighbor_position_update_can_trigger_replacement(void)
     TEST_ASSERT(topology_has_neighbor_ids(&topo, 2, 4));
     TEST_ASSERT(topo.neighbors[0].logical_distance == 1);
     TEST_ASSERT(topo.neighbors[1].logical_distance == 10);
+
+    return true;
+}
+
+static bool test_topology_rejects_invalid_config(void)
+{
+    ekk_topology_t topo;
+    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
+
+    config.k_neighbors = 0;
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) ==
+                EKK_ERR_INVALID_ARG);
+
+    config = (ekk_topology_config_t)EKK_TOPOLOGY_CONFIG_DEFAULT;
+    config.k_neighbors = EKK_K_NEIGHBORS + 1U;
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) ==
+                EKK_ERR_INVALID_ARG);
+
+    config = (ekk_topology_config_t)EKK_TOPOLOGY_CONFIG_DEFAULT;
+    config.k_neighbors = 3;
+    config.min_neighbors = 4;
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) ==
+                EKK_ERR_INVALID_ARG);
+
+    config = (ekk_topology_config_t)EKK_TOPOLOGY_CONFIG_DEFAULT;
+    config.metric = (ekk_distance_metric_t)255;
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) ==
+                EKK_ERR_INVALID_ARG);
+
+    config = (ekk_topology_config_t)EKK_TOPOLOGY_CONFIG_DEFAULT;
+    config.discovery_period = 0;
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) ==
+                EKK_ERR_INVALID_ARG);
+
+    return true;
+}
+
+static bool test_topology_never_exceeds_compiled_neighbor_capacity(void)
+{
+    ekk_topology_t topo;
+    ekk_topology_config_t config = EKK_TOPOLOGY_CONFIG_DEFAULT;
+    uint32_t discovered = (EKK_MAX_MODULES > 2U) ? (EKK_MAX_MODULES - 2U) : 0U;
+    uint32_t expected = EKK_MIN(discovered, (uint32_t)EKK_K_NEIGHBORS);
+
+    TEST_ASSERT(ekk_topology_init(&topo, 1, (ekk_position_t){0, 0, 0}, &config) == EKK_OK);
+
+    for (uint32_t id = 2; id < EKK_MAX_MODULES; id++) {
+        TEST_ASSERT(ekk_topology_on_discovery(&topo, (ekk_module_id_t)id,
+                                              (ekk_position_t){(int32_t)id, 0, 0}) == EKK_OK);
+        TEST_ASSERT(topo.neighbor_count <= EKK_K_NEIGHBORS);
+    }
+
+    TEST_ASSERT(topo.neighbor_count == expected);
+    for (uint32_t i = 0; i < topo.neighbor_count; i++) {
+        TEST_ASSERT(topo.neighbors[i].id != EKK_INVALID_MODULE_ID);
+    }
 
     return true;
 }
@@ -477,6 +531,44 @@ static bool test_module_tick_propagates_hal_recv_hard_error(void)
     return true;
 }
 
+static bool test_module_tick_rejects_spoofed_heartbeat_and_discovery(void)
+{
+    ekk_module_t mod;
+    ekk_heartbeat_msg_t hb = {
+        .msg_type = EKK_MSG_HEARTBEAT,
+        .sender_id = 2,
+        .sequence = 1,
+    };
+    ekk_discovery_msg_t discovery = {
+        .msg_type = EKK_MSG_DISCOVERY,
+        .sender_id = 3,
+        .position = {1, 0, 0},
+    };
+
+    drain_hal_messages();
+    TEST_ASSERT(ekk_field_init(ekk_get_field_region()) == EKK_OK);
+
+    ekk_hal_set_mock_time(1000);
+    TEST_ASSERT(ekk_module_init(&mod, 5, "module-5", (ekk_position_t){0, 0, 0}) == EKK_OK);
+    TEST_ASSERT(ekk_module_start(&mod) == EKK_OK);
+    TEST_ASSERT(ekk_heartbeat_add_neighbor(&mod.heartbeat, 2) == EKK_OK);
+
+    ekk_hal_set_module_id(9);
+    TEST_ASSERT(ekk_hal_send(mod.id, EKK_MSG_HEARTBEAT, &hb, sizeof(hb)) == EKK_OK);
+    TEST_ASSERT(ekk_hal_send(mod.id, EKK_MSG_DISCOVERY, &discovery, sizeof(discovery)) == EKK_OK);
+    ekk_hal_set_module_id(mod.id);
+
+    TEST_ASSERT(ekk_module_tick(&mod, 2000) == EKK_OK);
+    TEST_ASSERT(ekk_heartbeat_get_health(&mod.heartbeat, 2) == EKK_HEALTH_UNKNOWN);
+    TEST_ASSERT(mod.heartbeat.neighbor_count == 1);
+    TEST_ASSERT(mod.topology.known_count == 0);
+    TEST_ASSERT(mod.topology.neighbor_count == 0);
+
+    ekk_hal_set_module_id(1);
+    drain_hal_messages();
+    return true;
+}
+
 static bool test_field_sampling_uses_caller_time_for_age(void)
 {
     ekk_field_t field = {0};
@@ -498,6 +590,25 @@ static bool test_field_sampling_uses_caller_time_for_age(void)
     TEST_ASSERT(ekk_field_sample_neighbors_at(&neighbor, 1, &aggregate, 2000) == EKK_OK);
     TEST_ASSERT(aggregate.timestamp == 1000);
     TEST_ASSERT(aggregate.components[EKK_FIELD_LOAD] > 0);
+
+    return true;
+}
+
+static bool test_field_gradients_saturate_fixed_subtraction(void)
+{
+    ekk_field_t mine = {0};
+    ekk_field_t neighbor = {0};
+    ekk_fixed_t gradients[EKK_FIELD_COUNT] = {0};
+
+    mine.components[EKK_FIELD_LOAD] = INT32_MIN;
+    neighbor.components[EKK_FIELD_LOAD] = INT32_MAX;
+    TEST_ASSERT(ekk_field_gradient(&mine, &neighbor, EKK_FIELD_LOAD) == INT32_MAX);
+
+    mine.components[EKK_FIELD_THERMAL] = INT32_MAX;
+    neighbor.components[EKK_FIELD_THERMAL] = INT32_MIN;
+    ekk_field_gradient_all(&mine, &neighbor, gradients);
+    TEST_ASSERT(gradients[EKK_FIELD_LOAD] == INT32_MAX);
+    TEST_ASSERT(gradients[EKK_FIELD_THERMAL] == INT32_MIN);
 
     return true;
 }
@@ -633,6 +744,7 @@ static bool test_module_metrics_count_only_real_neighbor_set_changes(void)
     TEST_ASSERT(ekk_module_init(&mod, 12, "module-12", (ekk_position_t){0, 0, 0}) == EKK_OK);
     mod.topology.config.metric = EKK_DISTANCE_PHYSICAL;
     mod.topology.config.k_neighbors = 2;
+    mod.topology.config.min_neighbors = 2;
 
     TEST_ASSERT(ekk_topology_on_discovery(&mod.topology, 2, (ekk_position_t){1, 0, 0}) == EKK_OK);
     TEST_ASSERT(ekk_topology_on_discovery(&mod.topology, 3, (ekk_position_t){2, 0, 0}) == EKK_OK);
@@ -733,6 +845,14 @@ int main(void)
         failures++;
     }
 
+    if (!test_topology_rejects_invalid_config()) {
+        failures++;
+    }
+
+    if (!test_topology_never_exceeds_compiled_neighbor_capacity()) {
+        failures++;
+    }
+
     if (!test_module_proposal_snapshots_neighbors()) {
         failures++;
     }
@@ -745,7 +865,15 @@ int main(void)
         failures++;
     }
 
+    if (!test_module_tick_rejects_spoofed_heartbeat_and_discovery()) {
+        failures++;
+    }
+
     if (!test_field_sampling_uses_caller_time_for_age()) {
+        failures++;
+    }
+
+    if (!test_field_gradients_saturate_fixed_subtraction()) {
         failures++;
     }
 

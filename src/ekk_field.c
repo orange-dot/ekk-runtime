@@ -36,6 +36,18 @@ static ekk_time_us_t g_decay_tau_us = EKK_FIELD_DECAY_TAU_US;
 /** Maximum field age (5 * tau) */
 #define EKK_FIELD_MAX_AGE_US    (EKK_FIELD_DECAY_TAU_US * 5)
 
+static ekk_fixed_t fixed_sub_sat(ekk_fixed_t a, ekk_fixed_t b)
+{
+    int64_t diff = (int64_t)a - (int64_t)b;
+    if (diff > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (diff < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (ekk_fixed_t)diff;
+}
+
 /* ============================================================================
  * INITIALIZATION
  * ============================================================================ */
@@ -341,7 +353,8 @@ ekk_fixed_t ekk_field_gradient(const ekk_field_t *my_field,
      * Positive: neighbors have higher values (I should increase)
      * Negative: neighbors have lower values (I should decrease)
      */
-    return neighbor_aggregate->components[component] - my_field->components[component];
+    return fixed_sub_sat(neighbor_aggregate->components[component],
+                         my_field->components[component]);
 }
 
 void ekk_field_gradient_all(const ekk_field_t *my_field,
@@ -353,7 +366,8 @@ void ekk_field_gradient_all(const ekk_field_t *my_field,
     }
 
     for (int i = 0; i < EKK_FIELD_COUNT; i++) {
-        gradients[i] = neighbor_aggregate->components[i] - my_field->components[i];
+        gradients[i] = fixed_sub_sat(neighbor_aggregate->components[i],
+                                     my_field->components[i]);
     }
 }
 

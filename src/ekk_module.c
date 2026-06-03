@@ -151,6 +151,7 @@ static ekk_error_t process_rx_messages(ekk_module_t *mod, ekk_time_us_t now)
             case EKK_MSG_HEARTBEAT: {
                 if (len < sizeof(ekk_heartbeat_msg_t)) break;
                 const ekk_heartbeat_msg_t *hb_msg = (const ekk_heartbeat_msg_t *)buffer;
+                if (hb_msg->sender_id != sender_id) break;
                 ekk_heartbeat_received(&mod->heartbeat, hb_msg->sender_id,
                                        hb_msg->sequence, now);
                 break;
@@ -159,6 +160,7 @@ static ekk_error_t process_rx_messages(ekk_module_t *mod, ekk_time_us_t now)
             case EKK_MSG_DISCOVERY: {
                 if (len < sizeof(ekk_discovery_msg_t)) break;
                 const ekk_discovery_msg_t *disc_msg = (const ekk_discovery_msg_t *)buffer;
+                if (disc_msg->sender_id != sender_id) break;
                 err = ekk_topology_on_discovery(&mod->topology, disc_msg->sender_id,
                                                 disc_msg->position);
                 if (err == EKK_ERR_NO_MEMORY) {

@@ -146,6 +146,40 @@ static ekk_bool_t entry_less_than(const distance_entry_t *a, const distance_entr
     return a->id < b->id;
 }
 
+static ekk_bool_t is_valid_distance_metric(ekk_distance_metric_t metric)
+{
+    switch (metric) {
+        case EKK_DISTANCE_LOGICAL:
+        case EKK_DISTANCE_PHYSICAL:
+        case EKK_DISTANCE_LATENCY:
+        case EKK_DISTANCE_CUSTOM:
+            return EKK_TRUE;
+        default:
+            return EKK_FALSE;
+    }
+}
+
+static ekk_bool_t is_valid_topology_config(const ekk_topology_config_t *config)
+{
+    if (config == NULL) {
+        return EKK_FALSE;
+    }
+
+    if (config->k_neighbors == 0 || config->k_neighbors > EKK_K_NEIGHBORS) {
+        return EKK_FALSE;
+    }
+
+    if (config->min_neighbors > config->k_neighbors) {
+        return EKK_FALSE;
+    }
+
+    if (config->discovery_period == 0) {
+        return EKK_FALSE;
+    }
+
+    return is_valid_distance_metric(config->metric);
+}
+
 /**
  * @brief Find the current farthest neighbor slot
  * @return Index if a neighbor exists, -1 otherwise
@@ -243,21 +277,27 @@ ekk_error_t ekk_topology_init(ekk_topology_t *topo,
                                ekk_position_t my_position,
                                const ekk_topology_config_t *config)
 {
+    ekk_topology_config_t resolved_config;
+
     if (topo == NULL || my_id == EKK_INVALID_MODULE_ID) {
+        return EKK_ERR_INVALID_ARG;
+    }
+
+    if (config != NULL) {
+        resolved_config = *config;
+    } else {
+        ekk_topology_config_t default_config = EKK_TOPOLOGY_CONFIG_DEFAULT;
+        resolved_config = default_config;
+    }
+
+    if (!is_valid_topology_config(&resolved_config)) {
         return EKK_ERR_INVALID_ARG;
     }
 
     memset(topo, 0, sizeof(ekk_topology_t));
     topo->my_id = my_id;
     topo->my_position = my_position;
-
-    /* Apply configuration */
-    if (config != NULL) {
-        topo->config = *config;
-    } else {
-        ekk_topology_config_t default_config = EKK_TOPOLOGY_CONFIG_DEFAULT;
-        topo->config = default_config;
-    }
+    topo->config = resolved_config;
 
     /* Initialize all neighbor slots as invalid */
     for (uint32_t i = 0; i < EKK_K_NEIGHBORS; i++) {
@@ -295,9 +335,10 @@ ekk_error_t ekk_topology_on_discovery(ekk_topology_t *topo,
         topo, topo->my_id, topo->my_position, sender_id, sender_position
     );
     int neighbor_idx = find_neighbor_index(topo, sender_id);
+    uint32_t target_neighbors = EKK_MIN(topo->config.k_neighbors, EKK_K_NEIGHBORS);
 
     /* Fill mode: always reelect until we have k neighbors. */
-    if (topo->neighbor_count < topo->config.k_neighbors) {
+    if (topo->neighbor_count < target_neighbors) {
         ekk_topology_reelect(topo);
         return EKK_OK;
     }
@@ -410,7 +451,8 @@ uint32_t ekk_topology_reelect(ekk_topology_t *topo)
     sort_by_distance(entries, entry_count);
 
     /* Take k nearest as new neighbors */
-    uint32_t new_count = EKK_MIN(entry_count, topo->config.k_neighbors);
+    uint32_t target_neighbors = EKK_MIN(topo->config.k_neighbors, EKK_K_NEIGHBORS);
+    uint32_t new_count = EKK_MIN(entry_count, target_neighbors);
 
     for (uint32_t i = 0; i < new_count; i++) {
         /* Check if this was already a neighbor */

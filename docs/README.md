@@ -8,6 +8,7 @@ Use this directory as the documentation entrypoint for `ekk-runtime`.
 ## Start Here
 
 - `KEY_COMPONENTS.md` - quickest subsystem map for the runtime
+- `SECURITY.md` - threat-model artifact pointer and deployment assumptions
 - `SEL4_REVIEW.md` - current correctness and hardening gap register
 - `MILESTONE_RUNTIME_HARDENING.md` - implementation hardening sequence
 
