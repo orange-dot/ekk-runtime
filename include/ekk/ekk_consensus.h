@@ -293,7 +293,11 @@ EKK_STATIC_ASSERT(sizeof(ekk_inhibit_msg_t) <= 12, "Inhibit message too large");
  * @brief Byzantine evidence types
  *
  * Evidence required to propose quarantine of a misbehaving module.
- * Target metric: 99.3% Byzantine fault detection rate.
+ *
+ * Authority boundary: this extract counts votes in a Byzantine-tolerant way,
+ * but it does not authenticate message senders (see ekk_consensus_on_vote).
+ * It is therefore not Byzantine-secure at the network layer, and no
+ * detection-rate figure is substantiated here.
  */
 typedef enum {
     EKK_EVIDENCE_EQUIVOCATION    = 0x01,  /**< Conflicting messages in same term */
