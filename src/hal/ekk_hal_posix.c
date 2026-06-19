@@ -48,6 +48,7 @@ static struct timespec g_start_time;
 
 typedef struct {
     ekk_module_id_t sender_id;
+    ekk_module_id_t dest_id;
     ekk_msg_type_t msg_type;
     uint8_t data[MSG_MAX_LEN];
     uint32_t len;
@@ -158,8 +159,6 @@ ekk_error_t ekk_hal_send(ekk_module_id_t dest_id,
                           const void *data,
                           uint32_t len)
 {
-    EKK_UNUSED(dest_id);
-
     if (data == NULL && len > 0) {
         return EKK_ERR_INVALID_ARG;
     }
@@ -179,6 +178,7 @@ ekk_error_t ekk_hal_send(ekk_module_id_t dest_id,
 
     hal_message_t *msg = &g_msg_queue[g_msg_head];
     msg->sender_id = g_module_id;
+    msg->dest_id = dest_id;
     msg->msg_type = msg_type;
     if (len > 0) {
         memcpy(msg->data, data, len);
@@ -235,15 +235,24 @@ ekk_error_t ekk_hal_recv(ekk_module_id_t *sender_id,
 
     uint32_t state = ekk_hal_critical_enter();
 
-    if (g_msg_tail == g_msg_head) {
-        ekk_hal_critical_exit(state);
-        return EKK_ERR_NOT_FOUND;  /* Queue empty */
+    /* One shared ring serves every logical module in this process. Deliver the
+     * first queued message addressed to this module (or broadcast) and leave
+     * messages for other modules in place, so a multi-module simulation no
+     * longer mis-delivers across identities. Broadcast fan-out to every module
+     * is not modelled: a broadcast is consumed by its first receiver. */
+    hal_message_t *msg = NULL;
+    for (uint32_t idx = g_msg_tail; idx != g_msg_head; idx = (idx + 1) % MSG_QUEUE_SIZE) {
+        hal_message_t *cand = &g_msg_queue[idx];
+        if (cand->valid &&
+            (cand->dest_id == g_module_id || cand->dest_id == EKK_BROADCAST_ID)) {
+            msg = cand;
+            break;
+        }
     }
 
-    hal_message_t *msg = &g_msg_queue[g_msg_tail];
-    if (!msg->valid) {
+    if (msg == NULL) {
         ekk_hal_critical_exit(state);
-        return EKK_ERR_NOT_FOUND;
+        return EKK_ERR_NOT_FOUND;  /* Nothing queued for this module */
     }
 
     *sender_id = msg->sender_id;
@@ -256,7 +265,11 @@ ekk_error_t ekk_hal_recv(ekk_module_id_t *sender_id,
     *len = copy_len;
 
     msg->valid = false;
-    g_msg_tail = (g_msg_tail + 1) % MSG_QUEUE_SIZE;
+
+    /* Reclaim leading slots that have been consumed. */
+    while (g_msg_tail != g_msg_head && !g_msg_queue[g_msg_tail].valid) {
+        g_msg_tail = (g_msg_tail + 1) % MSG_QUEUE_SIZE;
+    }
 
     ekk_hal_critical_exit(state);
 

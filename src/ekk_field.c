@@ -428,15 +428,13 @@ uint32_t ekk_field_gc(ekk_time_us_t max_age_us)
 
         ekk_time_us_t age = now - timestamp;
         if (age > max_age_us) {
-            /* Re-check sequence before invalidating: a fresh publish
-             * may have raced us since the consistency read above. */
-            ekk_hal_memory_barrier();
-            if (cf->sequence != seq1) {
-                continue;  /* Fresh write raced us, skip */
+            /* Claim the slot with one CAS that takes the seqlock from the
+             * observed even value seq1 to odd. If a publisher raced us since
+             * the consistency read above, the sequence has moved, the CAS
+             * fails, and we skip rather than clobber a fresh field. */
+            if (!ekk_hal_cas32(&cf->sequence, seq1, seq1 + 1)) {
+                continue;
             }
-
-            /* Mark as invalid — uses seqlock write protocol */
-            ekk_hal_atomic_inc(&cf->sequence);
             ekk_hal_memory_barrier();
             cf->field.source = EKK_INVALID_MODULE_ID;
             ekk_hal_memory_barrier();

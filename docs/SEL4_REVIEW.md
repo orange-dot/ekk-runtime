@@ -294,4 +294,26 @@ The following properties are explicitly confirmed and should be preserved:
 
 ---
 
+## 8. Resolution Status (2026-06-19)
+
+The runtime moved on since the 2026-03-18 review. Disposition of the section 7
+action list against the current `src/` tree:
+
+| # | Severity | Status | Evidence |
+|---|----------|--------|----------|
+| 1 | CRITICAL | Fixed now | `ekk_field_gc` claims the slot with a single `ekk_hal_cas32(seq1 → seq1+1)`; a racing publish fails the CAS and is skipped instead of clobbered (`ekk_field.c`). |
+| 2 | HIGH | Already resolved | `ekk_fixed_div` saturates to `INT32_MIN/MAX` like `ekk_fixed_mul` (`ekk_types.c:48–51`). |
+| 3 | HIGH | Fixed now | Dropped the unsubstantiated "99.3% detection" metric and stated the unauthenticated-`voter_id` boundary in `ekk_consensus.h`; matching note at `ekk_consensus_on_vote` (`ekk_consensus.c`). |
+| 4 | HIGH | Already resolved | `ekk_field_publish_at` copies the caller's `field->sequence`, not the mid-write odd counter (`ekk_field.c:111`). |
+| 5 | MEDIUM | Already resolved | `on_neighbor_dead_cb` transitions ACTIVE/DEGRADED → `EKK_MODULE_REFORMING` (`ekk_module.c:943–947`). |
+| 6 | MEDIUM | Already resolved | `ekk_field_sample_neighbors_at` samples via `ekk_field_sample_consistent_at(..., 3, now)` (`ekk_field.c:274`). |
+| 7 | MEDIUM | Already resolved | `ekk_heartbeat_tick` returns early when `config.period == 0` before the division (`ekk_heartbeat.c:231–233`), so the AutoCorres precondition holds by construction. |
+| 8 | LOW | Fixed now | POSIX HAL messages carry `dest_id`; `ekk_hal_recv` delivers only messages for the current module or broadcast and leaves others queued (`hal/ekk_hal_posix.c`). Broadcast fan-out to every module is still not modelled. |
+| 9 | LOW | Already resolved | Heartbeat messages carry `hb->current_state` (`ekk_heartbeat.c:82`). |
+
+Smoke after this cut: `cmake --build build && ctest` → 3/3 pass; `ekx_ek3_rack`
+7 and 84 modules report `EK3_RACK_OK`.
+
+---
+
 *End of review.*

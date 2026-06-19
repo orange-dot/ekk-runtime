@@ -515,6 +515,11 @@ ekk_error_t ekk_consensus_on_vote(ekk_consensus_t *cons,
                                    ekk_ballot_id_t ballot_id,
                                    ekk_vote_value_t vote)
 {
+    /* voter_id comes from the received message and is not authenticated here:
+     * no MAC, nonce, or hardware-bound credential. Eligibility is checked
+     * against the ballot's voter list below, but a module that can forge an
+     * eligible voter's ID can vote under that identity. Sender authentication
+     * is a deployment/HAL responsibility, not provided by this extract. */
     if (cons == NULL || voter_id == EKK_INVALID_MODULE_ID ||
         proposer_id == EKK_INVALID_MODULE_ID ||
         ballot_id == EKK_INVALID_BALLOT_ID) {
