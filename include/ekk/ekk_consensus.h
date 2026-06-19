@@ -128,8 +128,8 @@ typedef struct {
  *
  * Application implements this to decide how to vote on proposals.
  */
-#ifndef EKK_VERIFICATION
-/* Function pointer typedefs — not supported by l4v C parser */
+/* Function pointer typedefs are accepted by the l4v C parser (plan A2);
+ * proofs abstract over the callbacks. */
 typedef ekk_vote_value_t (*ekk_consensus_decide_cb)(ekk_consensus_t *cons,
                                                      void *context,
                                                      const ekk_ballot_t *ballot);
@@ -141,7 +141,6 @@ typedef void (*ekk_consensus_complete_cb)(ekk_consensus_t *cons,
                                            void *context,
                                            const ekk_ballot_t *ballot,
                                            ekk_vote_result_t result);
-#endif /* EKK_VERIFICATION */
 
 /* ============================================================================
  * CONSENSUS STATE
@@ -165,13 +164,12 @@ struct ekk_consensus {
     uint8_t electorate_count;                  /**< Current peer electorate */
 
     ekk_consensus_config_t config;              /**< Configuration */
-#ifndef EKK_VERIFICATION
-    /* Callback fields — function pointers not supported by l4v C parser */
+    /* Callback fields. Parseable function pointers (plan A2); the pure proof
+     * target evaluate_ballot does not use them. */
     ekk_consensus_decide_cb decide_callback;
     ekk_consensus_complete_cb complete_callback;
     void *decide_context;
     void *complete_context;
-#endif
 };
 
 /* ============================================================================
@@ -225,7 +223,6 @@ ekk_vote_result_t ekk_consensus_get_result(const ekk_consensus_t *cons,
 
 uint32_t ekk_consensus_tick(ekk_consensus_t *cons, ekk_time_us_t now);
 
-#ifndef EKK_VERIFICATION
 void ekk_consensus_set_decide_callback(ekk_consensus_t *cons,
                                         ekk_consensus_decide_cb callback,
                                         void *context);
@@ -233,7 +230,6 @@ void ekk_consensus_set_decide_callback(ekk_consensus_t *cons,
 void ekk_consensus_set_complete_callback(ekk_consensus_t *cons,
                                           ekk_consensus_complete_cb callback,
                                           void *context);
-#endif
 
 /* ============================================================================
  * VOTE MESSAGE FORMAT

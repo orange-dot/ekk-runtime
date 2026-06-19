@@ -315,3 +315,30 @@ gcc -DEKK_VERIFICATION -Iinclude -fsyntax-only src/ekk_types.c src/ekk_heartbeat
 
 The `EKK_VERIFICATION` flag is the single switch that activates all parser-safe
 definitions. It does not affect the non-verification build in any way.
+
+---
+
+## Phase 1 status (2026-06-19)
+
+Phase 1 is met at the gcc proxy level. `scripts/check-verification-parse.sh`
+runs the acceptance command — `gcc -DEKK_VERIFICATION -Iinclude -fsyntax-only`
+— over the seven verified core TUs (HAL excluded) and passes clean.
+
+Done:
+
+- 1.1–1.7 are already in the tree: ternary `EKK_MIN/MAX`, pre-computed
+  `EKK_FIXED_*` integer constants, `EKK_VERIFICATION`-guarded
+  atomics/barriers/`cas32`, `ekk_bool_t` / `EKK_TRUE` / `EKK_FALSE`, the
+  `ekk_stdint.h` stub, and the `<stdbool.h>` guard.
+- Removed stale `#ifndef EKK_VERIFICATION` guards that dropped the callback
+  function-pointer fields from `ekk_heartbeat_t` and `struct ekk_consensus`
+  while the implementation still used them — the verification build had 21
+  syntax errors. Per A2/A3 the parser accepts function pointers and `void *`,
+  so the struct is now identical in both builds and the gate is clean.
+
+Remaining (needs a local l4v + Isabelle install, unavailable here):
+
+- Run the real l4v C parser on the lifted TUs; the gcc gate is only a proxy.
+- Phase 2/3: the `docs/isabelle/` session now lifts structs that include the
+  callback fields, so the `.thy` scaffold should be re-checked against actual
+  AutoCorres output before the proof targets.

@@ -75,13 +75,13 @@ typedef struct {
 
     ekk_heartbeat_config_t config;
 
-#ifndef EKK_VERIFICATION
-    /* Callbacks — function pointers not supported by l4v C parser */
+    /* Health-change callbacks. The l4v C parser accepts function pointer
+     * types (L4V_PARSEABILITY_PLAN A2); proofs abstract over them and the
+     * pure proof targets do not invoke them. */
     void (*on_neighbor_alive)(void *context, ekk_module_id_t id);
     void (*on_neighbor_suspect)(void *context, ekk_module_id_t id);
     void (*on_neighbor_dead)(void *context, ekk_module_id_t id);
     void *callback_context;
-#endif
 } ekk_heartbeat_t;
 
 /* ============================================================================
@@ -212,7 +212,6 @@ void ekk_heartbeat_set_state(ekk_heartbeat_t *hb, ekk_module_state_t state);
  * CALLBACKS
  * ============================================================================ */
 
-#ifndef EKK_VERIFICATION
 /**
  * @brief Set callbacks for health state changes
  */
@@ -221,7 +220,6 @@ void ekk_heartbeat_set_callbacks(ekk_heartbeat_t *hb,
                                   void (*on_suspect)(void *context, ekk_module_id_t),
                                   void (*on_dead)(void *context, ekk_module_id_t),
                                   void *context);
-#endif
 
 #ifdef __cplusplus
 }
