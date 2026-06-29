@@ -11,6 +11,7 @@ Use this directory as the documentation entrypoint for `ekk-runtime`.
 - `SECURITY.md` - threat-model artifact pointer and deployment assumptions
 - `SEL4_REVIEW.md` - current correctness and hardening gap register
 - `MILESTONE_RUNTIME_HARDENING.md` - implementation hardening sequence
+- `EK3_ROJ_MAPPING.md` - Electrokombinacija EK3 charger-module mapping
 
 ## Verification Track
 

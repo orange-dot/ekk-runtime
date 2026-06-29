@@ -40,6 +40,7 @@ This is the shortest trustworthy proof that the repo is alive.
 - `docs/KEY_COMPONENTS.md` - subsystem map
 - `docs/SEL4_REVIEW.md` - current correctness and hardening gaps
 - `docs/VERIFICATION_PLAN.md` - proof-track scope and milestones
+- `docs/EK3_ROJ_MAPPING.md` - Electrokombinacija EK3 charger-module mapping
 
 ## Verification
 
